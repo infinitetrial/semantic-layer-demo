@@ -32,6 +32,9 @@ node_modules/
 out/
 dist/
 
+# Vercel
+.vercel/
+
 # Temporary files
 *.tmp
 *.swp
