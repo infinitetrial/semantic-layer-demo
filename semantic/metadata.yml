@@ -1,0 +1,382 @@
+# metadata.yml
+# Column-level metadata for Customer Personality Analysis dataset
+# NOTE: Business owners are illustrative examples for demonstration purposes
+
+columns:
+  
+  # Customer Identification
+  ID:
+    display_name: "Customer ID"
+    description: "Unique identifier for each customer"
+    data_type: "integer"
+    business_owner: "Customer Data Team"
+    pii_level: "low"
+    required: true
+    usage_notes: "Primary key for customer records"
+  
+  # Demographics
+  Year_Birth:
+    display_name: "Birth Year"
+    description: "Customer's year of birth"
+    data_type: "integer"
+    business_owner: "Marketing Team"
+    pii_level: "medium"
+    valid_range: [1893, 2003]
+    usage_notes: |
+      - Use YEAR(CURRENT_DATE) - Year_Birth to calculate current age
+      - Some birth years may seem unusual (very old customers)
+      - Age segments defined in taxonomy.yml
+  
+  Education:
+    display_name: "Education Level"
+    description: "Customer's highest education level attained"
+    data_type: "string"
+    business_owner: "Marketing Team"
+    pii_level: "low"
+    valid_values:
+      - "Graduation"
+      - "PhD"
+      - "Master"
+      - "2n Cycle"
+      - "Basic"
+    usage_notes: "Education segments can be used for targeted campaigns"
+  
+  Marital_Status:
+    display_name: "Marital Status"
+    description: "Customer's relationship status"
+    data_type: "string"
+    business_owner: "Marketing Team"
+    pii_level: "low"
+    valid_values:
+      - "Married"
+      - "Together"
+      - "Single"
+      - "Divorced"
+      - "Widow"
+      - "Alone"
+      - "Absurd"
+      - "YOLO"
+    usage_notes: |
+      - Some values are non-standard ("Absurd", "YOLO")
+      - Consider cleaning or grouping these values
+      - "Together" likely means domestic partnership
+  
+  Income:
+    display_name: "Annual Household Income"
+    description: "Customer's yearly household income in USD"
+    data_type: "currency"
+    business_owner: "Finance Team"
+    pii_level: "high"
+    currency: "USD"
+    usage_notes: |
+      - Contains NULL values (some customers didn't provide income)
+      - Use for customer segmentation and targeting
+      - SENSITIVE: Follow data privacy policies
+  
+  Kidhome:
+    display_name: "Children at Home"
+    description: "Number of young children in customer's household"
+    data_type: "integer"
+    business_owner: "Marketing Team"
+    pii_level: "medium"
+    valid_range: [0, 2]
+    usage_notes: "Used in family_status taxonomy segment"
+  
+  Teenhome:
+    display_name: "Teenagers at Home"
+    description: "Number of teenagers in customer's household"
+    data_type: "integer"
+    business_owner: "Marketing Team"
+    pii_level: "medium"
+    valid_range: [0, 2]
+    usage_notes: "Used in family_status taxonomy segment"
+  
+  Dt_Customer:
+    display_name: "Customer Enrollment Date"
+    description: "Date when customer first registered with the company"
+    data_type: "date"
+    business_owner: "Customer Data Team"
+    pii_level: "low"
+    usage_notes: "Can be used to calculate customer tenure"
+  
+  Recency:
+    display_name: "Days Since Last Purchase"
+    description: "Number of days since customer's last purchase"
+    data_type: "integer"
+    business_owner: "Marketing Team"
+    pii_level: "low"
+    usage_notes: |
+      - Lower values = more recent purchase (more engaged)
+      - High values may indicate at-risk customers
+      - Useful for churn prediction models
+  
+  # Product Spending (2-year totals)
+  MntWines:
+    display_name: "Wine Spending"
+    description: "Amount spent on wine products in last 2 years"
+    data_type: "currency"
+    business_owner: "Product Team"
+    pii_level: "low"
+    currency: "USD"
+    taxonomy_path: "product_categories.beverages.wine"
+    usage_notes: "Part of total_spending calculation"
+  
+  MntFruits:
+    display_name: "Fruit Spending"
+    description: "Amount spent on fruit products in last 2 years"
+    data_type: "currency"
+    business_owner: "Product Team"
+    pii_level: "low"
+    currency: "USD"
+    taxonomy_path: "product_categories.food.fruits"
+    usage_notes: "Part of total_spending calculation"
+  
+  MntMeatProducts:
+    display_name: "Meat Spending"
+    description: "Amount spent on meat products in last 2 years"
+    data_type: "currency"
+    business_owner: "Product Team"
+    pii_level: "low"
+    currency: "USD"
+    taxonomy_path: "product_categories.food.meat"
+    usage_notes: "Part of total_spending calculation"
+  
+  MntFishProducts:
+    display_name: "Fish Spending"
+    description: "Amount spent on fish products in last 2 years"
+    data_type: "currency"
+    business_owner: "Product Team"
+    pii_level: "low"
+    currency: "USD"
+    taxonomy_path: "product_categories.food.fish"
+    usage_notes: "Part of total_spending calculation"
+  
+  MntSweetProducts:
+    display_name: "Sweets Spending"
+    description: "Amount spent on sweet products in last 2 years"
+    data_type: "currency"
+    business_owner: "Product Team"
+    pii_level: "low"
+    currency: "USD"
+    taxonomy_path: "product_categories.food.sweets"
+    usage_notes: "Part of total_spending calculation"
+  
+  MntGoldProds:
+    display_name: "Gold Products Spending"
+    description: "Amount spent on premium/luxury gold products in last 2 years"
+    data_type: "currency"
+    business_owner: "Product Team"
+    pii_level: "low"
+    currency: "USD"
+    taxonomy_path: "product_categories.luxury.gold_products"
+    usage_notes: "Part of total_spending calculation"
+  
+  # Purchase Channels
+  NumDealsPurchases:
+    display_name: "Purchases with Discount"
+    description: "Number of purchases made with a discount"
+    data_type: "integer"
+    business_owner: "Marketing Team"
+    pii_level: "low"
+    usage_notes: "Indicates price sensitivity"
+  
+  NumWebPurchases:
+    display_name: "Web Purchases"
+    description: "Number of purchases made through company's website"
+    data_type: "integer"
+    business_owner: "E-commerce Team"
+    pii_level: "low"
+    taxonomy_path: "purchase_channels.web"
+    usage_notes: "Digital channel preference indicator"
+  
+  NumCatalogPurchases:
+    display_name: "Catalog Purchases"
+    description: "Number of purchases made through catalog orders"
+    data_type: "integer"
+    business_owner: "Marketing Team"
+    pii_level: "low"
+    taxonomy_path: "purchase_channels.catalog"
+    usage_notes: "Traditional marketing channel"
+  
+  NumStorePurchases:
+    display_name: "Store Purchases"
+    description: "Number of in-store purchases"
+    data_type: "integer"
+    business_owner: "Retail Team"
+    pii_level: "low"
+    taxonomy_path: "purchase_channels.store"
+    usage_notes: "Physical retail preference indicator"
+  
+  NumWebVisitsMonth:
+    display_name: "Monthly Website Visits"
+    description: "Number of visits to company's website in last month"
+    data_type: "integer"
+    business_owner: "E-commerce Team"
+    pii_level: "low"
+    usage_notes: "Digital engagement metric"
+  
+  # Campaign Response
+  AcceptedCmp1:
+    display_name: "Accepted Campaign 1"
+    description: "1 if customer accepted offer in Campaign 1, 0 otherwise"
+    data_type: "boolean"
+    business_owner: "Marketing Team"
+    pii_level: "low"
+    usage_notes: "Campaign performance tracking"
+  
+  AcceptedCmp2:
+    display_name: "Accepted Campaign 2"
+    description: "1 if customer accepted offer in Campaign 2, 0 otherwise"
+    data_type: "boolean"
+    business_owner: "Marketing Team"
+    pii_level: "low"
+    usage_notes: "Campaign performance tracking"
+  
+  AcceptedCmp3:
+    display_name: "Accepted Campaign 3"
+    description: "1 if customer accepted offer in Campaign 3, 0 otherwise"
+    data_type: "boolean"
+    business_owner: "Marketing Team"
+    pii_level: "low"
+    usage_notes: "Campaign performance tracking"
+  
+  AcceptedCmp4:
+    display_name: "Accepted Campaign 4"
+    description: "1 if customer accepted offer in Campaign 4, 0 otherwise"
+    data_type: "boolean"
+    business_owner: "Marketing Team"
+    pii_level: "low"
+    usage_notes: "Campaign performance tracking"
+  
+  AcceptedCmp5:
+    display_name: "Accepted Campaign 5"
+    description: "1 if customer accepted offer in Campaign 5, 0 otherwise"
+    data_type: "boolean"
+    business_owner: "Marketing Team"
+    pii_level: "low"
+    usage_notes: "Campaign performance tracking"
+  
+  Response:
+    display_name: "Accepted Last Campaign"
+    description: "1 if customer accepted offer in most recent campaign, 0 otherwise"
+    data_type: "boolean"
+    business_owner: "Marketing Team"
+    pii_level: "low"
+    usage_notes: "Most recent campaign response indicator"
+  
+  Complain:
+    display_name: "Customer Complaint"
+    description: "1 if customer complained in last 2 years, 0 otherwise"
+    data_type: "boolean"
+    business_owner: "Customer Service Team"
+    pii_level: "low"
+    usage_notes: "Customer satisfaction indicator, risk flag"
+  
+  Z_CostContact:
+    display_name: "Cost of Contact"
+    description: "Cost to contact customer (constant value)"
+    data_type: "integer"
+    business_owner: "Finance Team"
+    pii_level: "none"
+    usage_notes: "Appears to be a constant (3) across all records"
+  
+  Z_Revenue:
+    display_name: "Revenue"
+    description: "Revenue generated from customer (constant value)"
+    data_type: "integer"
+    business_owner: "Finance Team"
+    pii_level: "none"
+    usage_notes: "Appears to be a constant (11) across all records"
+
+# Dataset-level metadata
+dataset_metadata:
+  name: "Customer Personality Analysis"
+  source: "Kaggle"
+  total_records: 2240
+  total_columns: 29
+  date_range: "2-year period (exact dates vary by customer)"
+  last_refreshed: "Static dataset"
+  
+  data_quality_notes: |
+    - Income has NULL values (~24 missing)
+    - Some marital status values are non-standard
+    - Birth years range from 1893 to 2003 (some outliers)
+    - Z_CostContact and Z_Revenue appear to be constants
+  
+  privacy_classification: "Customer PII - Handle with care"
+  
+  usage_guidelines: |
+    - Always filter WHERE Income IS NOT NULL for income-based analysis
+    - Use taxonomy.yml for standardized customer segments
+    - Respect PII levels when sharing data
+    - All currency values assumed to be USD
+
+# Relationships and derived metrics
+derived_metrics:
+  total_spending:
+    formula: "MntWines + MntFruits + MntMeatProducts + MntFishProducts + MntSweetProducts + MntGoldProds"
+    description: "Total customer spending across all product categories"
+    used_in:
+      - "value_tiers taxonomy"
+      - "customer segmentation"
+  
+  total_purchases:
+    formula: "NumWebPurchases + NumCatalogPurchases + NumStorePurchases"
+    description: "Total number of purchases across all channels"
+    used_in:
+      - "customer engagement metrics"
+  
+  age:
+    formula: "YEAR(CURRENT_DATE) - Year_Birth"
+    description: "Customer's current age"
+    used_in:
+      - "customer_age_segments taxonomy"
+  
+  campaign_acceptance_rate:
+    formula: "(AcceptedCmp1 + AcceptedCmp2 + AcceptedCmp3 + AcceptedCmp4 + AcceptedCmp5) / 5"
+    description: "Percentage of campaigns accepted by customer"
+    used_in:
+      - "marketing effectiveness analysis"
+
+# Metadata
+metadata:
+  version: "1.0"
+  last_updated: "2026-02-10"
+  created_by: "Data Engineering Team"
+  approved_by: "Chief Data Officer"
+  purpose: "Column-level metadata for Customer Personality Analysis dataset"
+  
+  governance:
+    data_steward: "Chief Data Officer"
+    review_frequency: "Quarterly"
+    last_review: "2026-02-10"
+    next_review: "2026-05-10"
+    change_approval_required: true
+  
+  change_log:
+    - version: "1.0"
+      date: "2026-02-10"
+      changes: "Initial metadata documentation"
+      author: "Data Engineering Team"
+  
+  usage_statistics:
+    total_columns_documented: 29
+    columns_with_pii: 8
+    data_quality_issues_flagged: 3
+  
+  related_files:
+    - "taxonomy.yml - Customer segment definitions"
+    - "semantic_layer.yml - Business metric definitions"
+  
+  contact:
+    questions: "data-engineering@company.com"
+    changes: "data-governance@company.com"
+    
+  notes: |
+    Update Guidelines:
+    - New columns are added to the dataset
+    - Column definitions change
+    - Data quality issues are discovered
+    - Business ownership changes
+    
+    All PII columns must follow company data privacy policies.

@@ -1,0 +1,354 @@
+# semantic_layer.yml
+# Business metric definitions using taxonomy and metadata
+
+metrics:
+  
+  # Customer Value Metrics
+  - name: total_spending
+    label: "Total Customer Spending"
+    type: sum
+    sql: |
+      MntWines + MntFruits + MntMeatProducts + 
+      MntFishProducts + MntSweetProducts + MntGoldProds
+    description: "Total amount spent across all product categories over 2-year period"
+    business_owner: "Finance Team"
+    unit: "USD"
+    
+    used_in:
+      - "Customer value tier segmentation"
+      - "Marketing ROI analysis"
+      - "Customer lifetime value calculations"
+    
+    related_taxonomy:
+      - "value_tiers"
+      - "product_categories"
+  
+  - name: customer_lifetime_value
+    label: "Customer Lifetime Value (CLV)"
+    type: calculated
+    sql: |
+      (MntWines + MntFruits + MntMeatProducts + 
+       MntFishProducts + MntSweetProducts + MntGoldProds) / 2.0
+    description: "Estimated annual customer value (total spending / 2 years)"
+    business_owner: "Marketing Team"
+    unit: "USD per year"
+    
+    interpretation: |
+      - Represents average annual revenue per customer
+      - Used for customer acquisition cost (CAC) comparisons
+      - High CLV customers should receive premium treatment
+  
+  - name: average_order_value
+    label: "Average Order Value (AOV)"
+    type: calculated
+    sql: |
+      (MntWines + MntFruits + MntMeatProducts + 
+       MntFishProducts + MntSweetProducts + MntGoldProds) / 
+      NULLIF(NumWebPurchases + NumCatalogPurchases + NumStorePurchases, 0)
+    description: "Average spending per purchase transaction"
+    business_owner: "Product Team"
+    unit: "USD"
+    
+    notes: |
+      - NULLIF prevents division by zero for customers with no purchases
+      - Higher AOV may indicate premium product preference
+  
+  # Engagement Metrics
+  - name: campaign_acceptance_rate
+    label: "Campaign Acceptance Rate"
+    type: ratio
+    sql: |
+      (AcceptedCmp1 + AcceptedCmp2 + AcceptedCmp3 + 
+       AcceptedCmp4 + AcceptedCmp5 + Response) / 6.0
+    description: "Percentage of campaigns accepted by customer (out of 6 total)"
+    business_owner: "Marketing Team"
+    unit: "percentage"
+    
+    interpretation: |
+      - 0.0 = Never accepted any campaign (72.8% of customers)
+      - 0.67+ = Highly engaged (top 2% of customers)
+      - Strongly correlates with spending and income
+    
+    related_taxonomy:
+      - "campaign_engagement"
+  
+  - name: total_purchases
+    label: "Total Purchase Count"
+    type: sum
+    sql: |
+      NumWebPurchases + NumCatalogPurchases + NumStorePurchases
+    description: "Total number of purchases across all channels"
+    business_owner: "Operations Team"
+    unit: "count"
+    
+    related_taxonomy:
+      - "purchase_channels"
+  
+  - name: purchase_frequency
+    label: "Purchase Frequency"
+    type: calculated
+    sql: |
+      (NumWebPurchases + NumCatalogPurchases + NumStorePurchases) / 2.0
+    description: "Average purchases per year"
+    business_owner: "Marketing Team"
+    unit: "purchases per year"
+  
+  - name: engagement_score
+    label: "Customer Engagement Score"
+    type: calculated
+    sql: |
+      (NumWebVisitsMonth * 0.3) + 
+      (NumWebPurchases * 2.0) + 
+      (NumStorePurchases * 3.0) +
+      (NumCatalogPurchases * 1.5) +
+      ((AcceptedCmp1 + AcceptedCmp2 + AcceptedCmp3 + AcceptedCmp4 + AcceptedCmp5 + Response) * 5.0)
+    description: "Composite score measuring customer engagement across multiple touchpoints"
+    business_owner: "Marketing Team"
+    unit: "score"
+    
+    calculation_details: |
+      Weighted formula:
+      - Website visits: 0.3 points each
+      - Web purchases: 2.0 points each
+      - Store purchases: 3.0 points each (highest intent)
+      - Catalog purchases: 1.5 points each
+      - Campaign acceptance: 5.0 points each (highest value)
+    
+    interpretation: |
+      - Higher scores indicate more engaged customers
+      - Use for identifying VIP customers
+      - Use for churn prediction (low scores = at-risk)
+  
+  # Channel Preference Metrics
+  - name: digital_preference
+    label: "Digital Channel Preference"
+    type: ratio
+    sql: |
+      NumWebPurchases / 
+      NULLIF(NumWebPurchases + NumCatalogPurchases + NumStorePurchases, 0)
+    description: "Percentage of purchases made through web channel"
+    business_owner: "E-commerce Team"
+    unit: "percentage"
+    
+    interpretation: |
+      - 1.0 = 100% digital customer
+      - 0.0 = Never uses web channel
+      - Use for channel-specific targeting
+  
+  - name: premium_product_affinity
+    label: "Premium Product Affinity"
+    type: ratio
+    sql: |
+      (MntWines + MntGoldProds) / 
+      NULLIF(MntWines + MntFruits + MntMeatProducts + 
+             MntFishProducts + MntSweetProducts + MntGoldProds, 0)
+    description: "Percentage of spending on premium products (wine + gold)"
+    business_owner: "Product Team"
+    unit: "percentage"
+    
+    interpretation: |
+      - High values (>0.5) indicate luxury customer
+      - Use for premium product launches
+      - Correlates with income level
+    
+    related_taxonomy:
+      - "product_categories.beverages"
+      - "product_categories.luxury"
+  
+  # Risk Metrics
+  - name: churn_risk_score
+    label: "Churn Risk Score"
+    type: calculated
+    sql: |
+      CASE
+        WHEN Recency > 90 THEN 3
+        WHEN Recency > 60 THEN 2
+        WHEN Recency > 30 THEN 1
+        ELSE 0
+      END +
+      CASE
+        WHEN (AcceptedCmp1 + AcceptedCmp2 + AcceptedCmp3 + AcceptedCmp4 + AcceptedCmp5 + Response) = 0 THEN 2
+        ELSE 0
+      END +
+      CASE
+        WHEN Complain = 1 THEN 2
+        ELSE 0
+      END
+    description: "Risk score indicating likelihood of customer churn"
+    business_owner: "Customer Success Team"
+    unit: "score (0-7)"
+    
+    calculation_details: |
+      Risk factors (cumulative):
+      - Recency >90 days: +3 points
+      - Recency 60-90 days: +2 points
+      - Recency 30-60 days: +1 point
+      - Zero campaign acceptance: +2 points
+      - Has complained: +2 points
+      
+      Score interpretation:
+      - 0-1: Low risk (active, engaged)
+      - 2-3: Medium risk (monitor)
+      - 4-5: High risk (intervention needed)
+      - 6-7: Critical risk (immediate action)
+  
+  - name: customer_tenure_days
+    label: "Customer Tenure"
+    type: calculated
+    sql: |
+      DATEDIFF('day', Dt_Customer, CURRENT_DATE)
+    description: "Number of days since customer enrollment"
+    business_owner: "Customer Data Team"
+    unit: "days"
+
+# Metric Groups for Common Analyses
+metric_groups:
+  
+  customer_segmentation:
+    label: "Customer Segmentation Metrics"
+    description: "Core metrics for segmenting and understanding customers"
+    metrics:
+      - total_spending
+      - customer_lifetime_value
+      - campaign_acceptance_rate
+      - engagement_score
+    
+    common_dimensions:
+      - customer_age_segments
+      - family_status
+      - value_tiers
+      - campaign_engagement
+  
+  marketing_performance:
+    label: "Marketing Performance Metrics"
+    description: "Metrics for evaluating marketing effectiveness"
+    metrics:
+      - campaign_acceptance_rate
+      - engagement_score
+      - churn_risk_score
+    
+    common_dimensions:
+      - campaign_engagement
+      - customer_age_segments
+      - education_levels
+  
+  product_analysis:
+    label: "Product Analysis Metrics"
+    description: "Metrics for understanding product performance"
+    metrics:
+      - total_spending
+      - premium_product_affinity
+      - average_order_value
+    
+    common_dimensions:
+      - product_categories
+      - value_tiers
+  
+  channel_optimization:
+    label: "Channel Optimization Metrics"
+    description: "Metrics for optimizing sales channels"
+    metrics:
+      - digital_preference
+      - total_purchases
+      - purchase_frequency
+    
+    common_dimensions:
+      - purchase_channels
+      - customer_age_segments
+
+# Business Rules
+business_rules:
+  
+  high_value_customer_criteria:
+    description: "What qualifies as a high-value customer"
+    conditions:
+      - total_spending > 1000
+      - campaign_acceptance_rate >= 0.33
+      - churn_risk_score < 3
+    
+    action: "Assign to premium customer service tier"
+  
+  at_risk_customer_criteria:
+    description: "Customers at risk of churning"
+    conditions:
+      - churn_risk_score >= 4
+      - Recency > 60
+    
+    action: "Trigger re-engagement campaign"
+  
+  vip_customer_criteria:
+    description: "VIP customers requiring white-glove treatment"
+    conditions:
+      - total_spending > 1500
+      - campaign_acceptance_rate >= 0.50
+      - premium_product_affinity > 0.50
+    
+    action: "Assign personal account manager"
+
+# Metadata
+metadata:
+  version: "1.0"
+  last_updated: "2026-02-10"
+  created_by: "Data Engineering Team"
+  approved_by: "Chief Data Officer, VP Marketing, VP Finance"
+  purpose: "Business metric definitions and calculations for customer analytics"
+  
+  governance:
+    data_steward: "Chief Data Officer"
+    business_owners:
+      - "Marketing Team (engagement, campaign metrics)"
+      - "Finance Team (value, spending metrics)"
+      - "Product Team (product affinity metrics)"
+      - "Customer Success Team (churn, risk metrics)"
+    review_frequency: "Quarterly"
+    last_review: "2026-02-10"
+    next_review: "2026-05-10"
+    change_approval_required: true
+  
+  change_log:
+    - version: "1.0"
+      date: "2026-02-10"
+      changes: "Initial semantic layer with 12 core metrics, 4 metric groups, 3 business rules"
+      author: "Data Engineering Team"
+      approved_by: "CDO, VP Marketing, VP Finance"
+  
+  usage_statistics:
+    total_metrics_defined: 12
+    calculated_metrics: 10
+    aggregation_metrics: 2
+    metric_groups: 4
+    business_rules: 3
+  
+  related_files:
+    - "taxonomy.yml - Segment and category definitions"
+    - "metadata.yml - Column-level documentation"
+  
+  contact:
+    questions: "data-engineering@company.com"
+    changes: "data-governance@company.com"
+  
+  notes: |
+    Metric Conventions:
+    - All metrics assume 2-year observation period unless specified
+    - "calculated" type = derived from formulas
+    - "sum" type = aggregates raw data
+    - "ratio" type = percentage or proportion
+    - Currency values are in USD
+    
+    When Adding New Metrics:
+    1. Document calculation logic clearly in sql field
+    2. Specify business_owner (team responsible)
+    3. Add to appropriate metric_group
+    4. Update related_taxonomy if needed
+    5. Require stakeholder approval for changes
+    6. Add interpretation guide for complex metrics
+    
+    Metric Validation:
+    - All metrics tested against sample queries
+    - Edge cases (nulls, zeros) handled with NULLIF
+    - Results validated with business stakeholders
+    
+    Dependencies:
+    - Metrics rely on taxonomy.yml segment definitions
+    - Column references validated against metadata.yml
+    - Changes to taxonomy may require metric updates

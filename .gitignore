@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+*.egg-info/
+
+# Environment variables
+.env
+.env.local
+
+# DuckDB
+*.duckdb
+*.db
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+
+# Temporary files
+*.tmp
+*.swp
+
+# Test files
+test_gemini_models.py
+test_setup.py
+explore_data.ipynb
